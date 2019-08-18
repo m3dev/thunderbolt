@@ -9,14 +9,14 @@ logger = getLogger(__name__)
 
 class SampleTask(gokart.TaskOnKart):
     task_namespace = 'sample'
-    model_name = luigi.Parameter()
+    name = luigi.Parameter()
     number = luigi.IntParameter()
     
     def require(self):
         return
 
     def output(self):
-        return self.make_target(f'{self.model_name}/sample.pkl')
+        return self.make_target(f'{self.name}/sample.pkl')
 
     def run(self):
         self.dump(f'this is sample output. model number: {self.number}')
