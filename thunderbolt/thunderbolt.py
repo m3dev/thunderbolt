@@ -62,7 +62,7 @@ class Thunderbolt():
             }
         return tasks
 
-    def _get_s3_keys(self, keys: list = [], marker: str = ''):
+    def _get_s3_keys(self, keys: list = [], marker: str = '') -> list:
         """Recursively get Key from S3."""
         response = self.s3client.list_objects(Bucket=self.bucket_name, Prefix=os.path.join(self.prefix, 'log/task_log'), Marker=marker)
         if 'Contents' in response:
@@ -71,7 +71,7 @@ class Thunderbolt():
                 return self._get_s3_keys(keys=keys, marker=keys[-1]['Key'])
         return keys
 
-    def get_task_df(self, all_data=False):
+    def get_task_df(self, all_data: bool = False) -> pd.DataFrame:
         """Get task's pandas data frame."""
         df = pd.DataFrame([{
             'task_id': k,
@@ -85,6 +85,6 @@ class Thunderbolt():
             return df
         return df[['task_id', 'task_name', 'last_modified', 'task_params']]
 
-    def load(self, task_id: int):
+    def load(self, task_id: int) -> list:
         """Load File."""
         return [gokart.target.make_target(file_path=x).load() for x in self.tasks[task_id]['task_log']['file_path']]
