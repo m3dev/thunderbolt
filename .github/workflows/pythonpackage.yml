@@ -24,7 +24,7 @@ jobs:
     - name: Lint with yapf
       run: |
         pip install yapf
-        yapf -dr --style=yapf.ini --exclude=examples/* ./ | grep "(reformatted)" | wc -l
+        yapf -dr --style=yapf.ini --exclude=examples/* ./
     - name: Test with unittest
       run: |
         python -m unittest test
