@@ -11,9 +11,7 @@ install_requires = ['boto3', 'pandas<0.25.0', 'gokart>=0.2.4', 'tqdm']
 setup(
     name='thunderbolt',
     use_scm_version=True,
-    setup_requires=[
-        "setuptools_scm"
-    ],
+    setup_requires=["setuptools_scm"],
     description='gokart file downloader',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -26,7 +24,5 @@ setup(
     package_dir={'thunderbolt': 'thunderbolt'},
     platforms='any',
     package_data={'thunderbolt': ['*.py']},
-    classifiers=[
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7'],
+    classifiers=['Programming Language :: Python :: 3.6', 'Programming Language :: Python :: 3.7'],
 )
