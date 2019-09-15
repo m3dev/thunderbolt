@@ -24,13 +24,7 @@ jobs:
     - name: Lint with yapf
       run: |
         pip install yapf
-        diffs=$(yapf -dr --style=yapf.ini --exclude=examples/* ./)
-        if [ -n "$diffs" ]; then
-          echo "failed"
-          echo $diffs
-          exit 1
-        fi
-        echo "pass"
+        yapf -dr --style=yapf.ini --exclude=examples/* ./ | grep "(reformatted)" | wc -l
     - name: Test with unittest
       run: |
         python -m unittest test
