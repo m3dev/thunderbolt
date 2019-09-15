@@ -24,10 +24,13 @@ jobs:
     - name: Lint with yapf
       run: |
         pip install yapf
-        diffs=$(yapf -dr --style=yapf.ini --exclude=examples/* ./)
+        $diffs=$(yapf -dr --style=yapf.ini --exclude=examples/* ./)
         if [ -n "$diffs" ]; then
+          echo "failed"
+          echo $diffs
           exit 1
         fi
+        echo "pass"
     - name: Test with unittest
       run: |
         python -m unittest test
