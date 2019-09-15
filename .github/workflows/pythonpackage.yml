@@ -25,11 +25,11 @@ jobs:
       run: |
         pip install yapf
         diffs=$(yapf -dr --style=yapf.ini --exclude=examples/* --exclude=.eggs/* ./)
-        if [ -n "$diffs" ]; then	
-          echo "failed yapf"	
-          echo $diffs	
-          exit 1	
-        fi	
+        if [ -n "$diffs" ]; then
+          echo "failed yapf"
+          echo $diffs
+          exit 1
+        fi
         echo "pass yapf"
     - name: Test with unittest
       run: |
