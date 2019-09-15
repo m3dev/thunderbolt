@@ -30,4 +30,4 @@ jobs:
         fi
     - name: Test with unittest
       run: |
-        python -m unittest test/*
+        python -m unittest test
