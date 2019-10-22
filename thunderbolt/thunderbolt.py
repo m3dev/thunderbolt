@@ -12,16 +12,18 @@ from tqdm import tqdm
 
 
 class Thunderbolt():
-    def __init__(self, workspace_directory: str = '', task_filters: Union[str, List[str]] = ''):
+    def __init__(self, workspace_directory: str = '', task_filters: Union[str, List[str]] = '', use_tqdm=False):
         """Thunderbolt init.
 
         Set the path to the directory or S3.
 
         Args:
-            workspace_directory: Gokart's TASK_WORKSPACE_DIRECTORY. If not, use $TASK_WORKSPACE_DIRECTORY in os.env.
+            workspace_directory: Gokart's TASK_WORKSPACE_DIRECTORY. If None, use $TASK_WORKSPACE_DIRECTORY in os.env.
             task_filters: Filter for task name.
                 Load only tasks that contain the specified string here. We can also specify the number of copies.
+            use_tqdm: Flag of using tdqm. If False, tqdm not be displayed (default=False).
         """
+        self.tqdm_disable = not use_tqdm
         self.s3client = None
         if not workspace_directory:
             env = os.getenv('TASK_WORKSPACE_DIRECTORY')
@@ -38,7 +40,7 @@ class Thunderbolt():
         """Load all task_log from workspace_directory."""
         files = {str(path) for path in Path(os.path.join(self.workspace_directory, 'log/task_log')).rglob('*')}
         tasks = {}
-        for i, x in enumerate(tqdm(files)):
+        for i, x in enumerate(tqdm(files, disable=self.tqdm_disable)):
             n = x.split('/')[-1]
             if self.task_filters and not [x for x in self.task_filters if x in n]:
                 continue
@@ -61,7 +63,7 @@ class Thunderbolt():
         """Load all task_log from S3"""
         files = self._get_s3_keys([], '')
         tasks = {}
-        for i, x in enumerate(tqdm(files)):
+        for i, x in enumerate(tqdm(files, disable=self.tqdm_disable)):
             n = x['Key'].split('/')[-1]
             if self.task_filters and not [x for x in self.task_filters if x in n]:
                 continue
