@@ -11,19 +11,20 @@ from tqdm import tqdm
 
 
 class Thunderbolt():
-    def __init__(self, file_path: str, task_filters=''):
+    def __init__(self, workspace_directory: str, task_filters=''):
         self.s3client = None
-        self.file_path = file_path
+        self.workspace_directory = workspace_directory if workspace_directory.startswith('s3://') else os.path.abspath(workspace_directory)
+        print(self.workspace_directory)
         self.task_filters = [task_filters] if type(task_filters) == str else task_filters
-        self.bucket_name = file_path.replace('s3://', '').split('/')[0] if file_path.startswith('s3://') else None
-        self.prefix = '/'.join(file_path.replace('s3://', '').split('/')[1:]) if file_path.startswith('s3://') else None
-        self.resource = boto3.resource('s3') if file_path.startswith('s3://') else None
-        self.s3client = Session().client('s3') if file_path.startswith('s3://') else None
-        self.tasks = self._get_tasks_from_s3() if file_path.startswith('s3://') else self._get_tasks()
+        self.bucket_name = workspace_directory.replace('s3://', '').split('/')[0] if workspace_directory.startswith('s3://') else None
+        self.prefix = '/'.join(workspace_directory.replace('s3://', '').split('/')[1:]) if workspace_directory.startswith('s3://') else None
+        self.resource = boto3.resource('s3') if workspace_directory.startswith('s3://') else None
+        self.s3client = Session().client('s3') if workspace_directory.startswith('s3://') else None
+        self.tasks = self._get_tasks_from_s3() if workspace_directory.startswith('s3://') else self._get_tasks()
 
     def _get_tasks(self):
         """Get task parameters."""
-        files = {str(path) for path in Path(os.path.join(self.file_path, 'log/task_log')).rglob('*')}
+        files = {str(path) for path in Path(os.path.join(self.workspace_directory, 'log/task_log')).rglob('*')}
         tasks = {}
         for i, x in enumerate(tqdm(files)):
             n = x.split('/')[-1]
@@ -62,7 +63,7 @@ class Thunderbolt():
             }
         return tasks
 
-    def _get_s3_keys(self, keys: list = [], marker: str = '') -> list:
+    def _get_s3_keys(self, keys=[], marker=''):
         """Recursively get Key from S3."""
         response = self.s3client.list_objects(Bucket=self.bucket_name, Prefix=os.path.join(self.prefix, 'log/task_log'), Marker=marker)
         if 'Contents' in response:
@@ -87,4 +88,7 @@ class Thunderbolt():
 
     def load(self, task_id: int) -> list:
         """Load File."""
-        return [gokart.target.make_target(file_path=x).load() for x in self.tasks[task_id]['task_log']['file_path']]
+        return [
+            gokart.target.make_target(file_path=os.path.join(os.path.dirname(self.workspace_directory), x)).load()
+            for x in self.tasks[task_id]['task_log']['file_path']
+        ]
