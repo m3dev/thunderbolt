@@ -8,6 +8,7 @@ script:
     - python setup.py install
     - cd test
     - python -m unittest discover -s ./
+    - cd ~/
 after_success:
 - coveralls
 deploy:
