@@ -23,6 +23,8 @@ setup(
     packages=['thunderbolt'],
     package_dir={'thunderbolt': 'thunderbolt'},
     platforms='any',
+    tests_require=['moto==1.3.6'],
+    test_suite='test',
     package_data={'thunderbolt': ['*.py']},
-    classifiers=['Programming Language :: Python :: 3.6', 'Programming Language :: Python :: 3.7'],
+    classifiers=['Programming Language :: Python :: 3.6'],
 )
