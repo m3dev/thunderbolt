@@ -6,8 +6,7 @@ script:
     - diffs=$(yapf -dr --style=yapf.ini ./thunderbolt)
     - if [ -n "$diffs" ]; then exit 1; fi
     - python setup.py install
-    - cd test
-    - python -m unittest discover -s ./
+    - python -m unittest discover -s ./test/
 deploy:
   on:
     tags: true
