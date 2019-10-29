@@ -2,7 +2,8 @@ from datetime import datetime
 import os
 from pathlib import Path
 import pickle
-from typing import Union, List
+from typing import Union, List, Any
+import shutil
 
 import boto3
 from boto3 import Session
@@ -12,7 +13,7 @@ from tqdm import tqdm
 
 
 class Thunderbolt():
-    def __init__(self, workspace_directory: str = '', task_filters: Union[str, List[str]] = '', use_tqdm=False):
+    def __init__(self, workspace_directory: str = '', task_filters: Union[str, List[str]] = '', use_tqdm: bool = False, tmp_path: str = './tmp'):
         """Thunderbolt init.
 
         Set the path to the directory or S3.
@@ -22,8 +23,10 @@ class Thunderbolt():
             task_filters: Filter for task name.
                 Load only tasks that contain the specified string here. We can also specify the number of copies.
             use_tqdm: Flag of using tdqm. If False, tqdm not be displayed (default=False).
+            tmp_path: Temporary directory when use external load function.
         """
         self.tqdm_disable = not use_tqdm
+        self.tmp_path = tmp_path
         self.s3client = None
         if not workspace_directory:
             env = os.getenv('TASK_WORKSPACE_DIRECTORY')
@@ -118,7 +121,7 @@ class Thunderbolt():
             return df
         return df[['task_id', 'task_name', 'last_modified', 'task_params']]
 
-    def load(self, task_id: int) -> list:
+    def load(self, task_id: int) -> Union[list, Any]:
         """Load File using gokart.load.
 
         Args:
@@ -126,9 +129,29 @@ class Thunderbolt():
                 Please check `task_id` by using Thunderbolt.get_task_df.
 
         Returns:
-            The return value is List. This is because it may be divided when dumping by gokart.
+            The return value is data or data list. This is because it may be divided when dumping by gokart.
         """
-        return [
-            gokart.target.make_target(file_path=os.path.join(os.path.dirname(self.workspace_directory), x)).load()
-            for x in self.tasks[task_id]['task_log']['file_path']
-        ]
+        data = [self._target_load(x) for x in self.tasks[task_id]['task_log']['file_path']]
+        data = data[0] if len(data) == 1 else data
+        return data
+
+    def _target_load(self, file_name: str) -> Any:
+        """Select gokart load_function and load model.
+
+        Args:
+            file_name: Path to gokart's output file.
+
+        Returns:
+            Loaded data.
+        """
+        file_path = os.path.join(os.path.dirname(self.workspace_directory), file_name)
+        if file_path.endswith('.zip'):
+            tmp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.path.abspath(self.tmp_path))
+            zip_client = gokart.zip_client_util.make_zip_client(file_path, tmp_path)
+            zip_client.unpack_archive()
+            load_function_path = os.path.join(tmp_path, 'load_function.pkl')
+            load_function = gokart.target.make_target(load_function_path).load()
+            model = load_function(os.path.join(tmp_path, 'model.pkl'))
+            shutil.rmtree(tmp_path)
+            return model
+        return gokart.target.make_target(file_path=file_path).load()
