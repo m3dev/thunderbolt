@@ -26,6 +26,7 @@ Example:
 from thunderbolt import Thunderbolt
 
 tb = Thunderbolt()
+print(tb.get_task_df())  # check task_id
 print(tb.load(task_id=0))
 ```
 
