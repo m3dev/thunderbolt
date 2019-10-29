@@ -25,7 +25,7 @@ Example:
 ```
 from thunderbolt import Thunderbolt
 
-tb = Thunderbolt(os.environ['TASK_WORKSPACE_DIRECTORY'])
+tb = Thunderbolt()
 print(tb.load(task_id=0))
 ```
 
