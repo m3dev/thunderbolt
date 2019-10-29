@@ -57,4 +57,4 @@ class SimpleLocalTest(unittest.TestCase):
         x = self.tb.load(0)
         with open(self.get_test_case_path('sample/test_case_c5b4a28a606228ac23477557c774a3a0.pkl'), 'rb') as f:
             target = pickle.load(f)
-        self.assertListEqual(x, [target])
+        self.assertListEqual(x, target)
