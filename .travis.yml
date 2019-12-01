@@ -1,16 +1,16 @@
 language: python
 python:
-    - 3.7
+- 3.7
 script:
-    - pip install yapf
-    - diffs=$(yapf -dr --style=yapf.ini ./thunderbolt)
-    - if [ -n "$diffs" ]; then exit 1; fi
-    - python setup.py install
-    - python -m unittest discover -s ./test/
+- pip install yapf
+- diffs=$(yapf -dr --style=yapf.ini ./thunderbolt)
+- if [ -n "$diffs" ]; then exit 1; fi
+- python setup.py install
+- python -m unittest discover -s ./test/
 deploy:
   on:
     tags: true
   provider: pypi
-  user: nishiba
-  password:
-    secure: tEYNJcqxO3N5MB8p7UKGr0eSpiE9TtNx0dM9++aZ+NdR8vKpN5xg7nPzBzUpSCEabcLmlHlXWtizHfXUARQ7iZ68h3O53PIETFSQpKZlYJnOoQ/Qny7Nz9p18KgDVqaNnDLnmYhWHtDCDpKqCqswcKHNkVqNqcmhIQIbnUiI3Z5cgjuNu2wirtTHihTmiXT5hO6fb09YOW8dCMeZxvCMFDkMgaV7yXt9hta1J+z0aWp8XVByQfbhPbm51Va9ONEegjK719R87O2Tvgiw7JIcuZQkmffSIOLAWB+Nf0wQ608VOd6n+TIMLarKhS04A0sUZxX+B7E8NeK7UREvH1KkIOXevo1axAfdzMAEUoa1p8dS1Mm6tHm6JthJL3LPw+BF0NT5JrcSBJr1fjpv+7t8yWYoj/cyWbWvwyF1YW2Va3O3ERUjh1Di0BcnEU2btot19czDZ8yLW9tap9jJL5TeKDJGNRIx0cj2HgG6M8Q+3XjRwp8I9bVxsU2zkR0bpLKo3tbTEmU6iEdQbkc9tCBtFe6icoevnTTFCc+PXKVVIzpI4cg0Eo8AvMvP3jY5DCLNPf9LeLZabqkgWuon9f3S5C0+BlmPkvNhBhh+nghBlCIMX+RIMZ1sgbRPegBu6zPHSAEhlg1cdYQ8gvMlVIcn9y6y633n4dyactBro9dGIyY=
+  user: vaaaaanquish
+  1xNVVdVeKsGC:
+    secure: NGiH3nBcSJlylbHaVlA+dZIAwqSvLV7TX+T45PIk/qcPHOsB+DbTtQ2VzqNlCN6+he6Xn4+0ztiWtzSOKF53k47hJD2b3NWT5+sEs6njJhj/SppJw9DLwKCFgmbzk9rMG6VrYPQVkLEo8sWkE6Wts8YOQGmzABcxbmG4/h9RcMZstPfQr+ywTKQrbLZ0dNxb9v0crjAOzm/oglxOJLqKCS9UDBoR/2vNUIkKH1Tt6l4+5WwzpzUSvS/G5CkP8ePV6rGhifiF3zdFXo66xhclrQHvNyV1jB90hBVYDxKBWQ+z52/hHN9/HD6MNMGDqdSanay1hg/w8G4jEc/VlK2iAs4s5PlOVsp/Pq2VvUJ6VV5jQwx9yVO0mSWvP5jERN1WWbQqKT3NuUFNi4rt9MZhfjtvpJWWobS/5Ci69DAGKl+Nx7E++YfLLWjxew4LSkEImUFhhYUOVew2aXY4qTN2j80yJHVCYAcSMOFS18kb5BjDfFZav6c9MjOpuZjvyh68RTr+FU5SnjV4GuBE81bXJKhWHMfgrWtR1wDsDNYWKvCNH6LBu65rLrWPAwx01VPLSBP/ZVPFQVgJEqcKi9Y2ag7ErjXkEmlseuReLGvLE62pRntv01dsAd4jYClY3sgXBm0Qa9X1LzrF4ofG9xMjwvUllkrF0sS1tocgRqBfp9U=
