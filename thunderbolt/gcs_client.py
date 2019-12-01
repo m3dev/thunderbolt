@@ -14,8 +14,6 @@ class GCSClient:
         self.task_filters = task_filters
         self.tqdm_disable = tqdm_disable
         self.gcs_client = GCSConfig().get_gcs_client()
-        self.bucket_name = workspace_directory.replace('gs://', '').split('/')[0]
-        self.prefix = '/'.join(workspace_directory.replace('gs://', '').split('/')[1:])
 
     def get_tasks(self) -> Dict[int, Dict[str, Any]]:
         """Load all task_log from GCS"""
