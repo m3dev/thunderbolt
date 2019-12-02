@@ -4,9 +4,9 @@ import shutil
 
 import gokart
 import pandas as pd
-from thunderbolt.s3_client import S3Client
-from thunderbolt.gcs_client import GCSClient
-from thunderbolt.local_directory_client import LocalDirectoryClient
+from thunderbolt.client.s3_client import S3Client
+from thunderbolt.client.gcs_client import GCSClient
+from thunderbolt.client.local_directory_client import LocalDirectoryClient
 
 
 class Thunderbolt:
