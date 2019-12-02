@@ -1,18 +1,15 @@
-from datetime import datetime
 import os
-from pathlib import Path
-import pickle
 from typing import Union, List, Any
 import shutil
 
-import boto3
-from boto3 import Session
 import gokart
 import pandas as pd
-from tqdm import tqdm
+from thunderbolt.client.s3_client import S3Client
+from thunderbolt.client.gcs_client import GCSClient
+from thunderbolt.client.local_directory_client import LocalDirectoryClient
 
 
-class Thunderbolt():
+class Thunderbolt:
     def __init__(self, workspace_directory: str = '', task_filters: Union[str, List[str]] = '', use_tqdm: bool = False, tmp_path: str = './tmp'):
         """Thunderbolt init.
 
@@ -25,80 +22,20 @@ class Thunderbolt():
             use_tqdm: Flag of using tdqm. If False, tqdm not be displayed (default=False).
             tmp_path: Temporary directory when use external load function.
         """
-        self.tqdm_disable = not use_tqdm
         self.tmp_path = tmp_path
-        self.s3client = None
         if not workspace_directory:
             env = os.getenv('TASK_WORKSPACE_DIRECTORY')
             workspace_directory = env if env else ''
-        self.workspace_directory = workspace_directory if workspace_directory.startswith('s3://') else os.path.abspath(workspace_directory)
-        self.task_filters = [task_filters] if type(task_filters) == str else task_filters
-        self.bucket_name = workspace_directory.replace('s3://', '').split('/')[0] if workspace_directory.startswith('s3://') else None
-        self.prefix = '/'.join(workspace_directory.replace('s3://', '').split('/')[1:]) if workspace_directory.startswith('s3://') else None
-        self.resource = boto3.resource('s3') if workspace_directory.startswith('s3://') else None
-        self.s3client = Session().client('s3') if workspace_directory.startswith('s3://') else None
-        self.tasks = self._get_tasks_from_s3() if workspace_directory.startswith('s3://') else self._get_tasks()
+        self.workspace_directory = workspace_directory
+        self.client = self._get_client([task_filters] if type(task_filters) == str else task_filters, not use_tqdm)
+        self.tasks = self.client.get_tasks()
 
-    def _get_tasks(self):
-        """Load all task_log from workspace_directory."""
-        files = {str(path) for path in Path(os.path.join(self.workspace_directory, 'log/task_log')).rglob('*')}
-        tasks = {}
-        for i, x in enumerate(tqdm(files, disable=self.tqdm_disable)):
-            n = x.split('/')[-1]
-            if self.task_filters and not [x for x in self.task_filters if x in n]:
-                continue
-            n = n.split('_')
-            modified = datetime.fromtimestamp(os.stat(x).st_mtime)
-            with open(x, 'rb') as f:
-                task_log = pickle.load(f)
-            with open(x.replace('task_log', 'task_params'), 'rb') as f:
-                task_params = pickle.load(f)
-            tasks[i] = {
-                'task_name': '_'.join(n[:-1]),
-                'task_params': task_params,
-                'task_log': task_log,
-                'last_modified': modified,
-                'task_hash': n[-1].split('.')[0],
-            }
-        return tasks
-
-    def _get_tasks_from_s3(self):
-        """Load all task_log from S3"""
-        files = self._get_s3_keys([], '')
-        tasks = {}
-        for i, x in enumerate(tqdm(files, disable=self.tqdm_disable)):
-            n = x['Key'].split('/')[-1]
-            if self.task_filters and not [x for x in self.task_filters if x in n]:
-                continue
-            n = n.split('_')
-            tasks[i] = {
-                'task_name': '_'.join(n[:-1]),
-                'task_params': pickle.loads(self.resource.Object(self.bucket_name, x['Key'].replace('task_log', 'task_params')).get()['Body'].read()),
-                'task_log': pickle.loads(self.resource.Object(self.bucket_name, x['Key']).get()['Body'].read()),
-                'last_modified': x['LastModified'],
-                'task_hash': n[-1].split('.')[0]
-            }
-        return tasks
-
-    def _get_s3_keys(self, keys=[], marker=''):
-        """Recursively get Key from S3.
-
-        Using s3client api by boto module.
-        Reference: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html
-
-        Args:
-            keys: The object key to get. Increases with recursion.
-            marker: S3 marker. The recursion ends when this is gone.
-
-        Returns:
-            Object keys from S3. For example: ['hoge', 'piyo', ...]
-        """
-        response = self.s3client.list_objects(Bucket=self.bucket_name, Prefix=os.path.join(self.prefix, 'log/task_log'), Marker=marker)
-        if 'Contents' in response:
-            keys.extend([{'Key': content['Key'], 'LastModified': content['LastModified']} for content in response['Contents']])
-            if 'Contents' in response and 'IsTruncated' in response:
-                return self._get_s3_keys(keys=keys, marker=keys[-1]['Key'])
-        return keys
+    def _get_client(self, filters, tqdm_disable):
+        if self.workspace_directory.startswith('s3://'):
+            return S3Client(self.workspace_directory, filters, tqdm_disable)
+        elif self.workspace_directory.startswith('gs://'):
+            return GCSClient(self.workspace_directory, filters, tqdm_disable)
+        return LocalDirectoryClient(self.workspace_directory, filters, tqdm_disable)
 
     def get_task_df(self, all_data: bool = False) -> pd.DataFrame:
         """Get task's pandas DataFrame.
@@ -120,6 +57,19 @@ class Thunderbolt():
         if all_data:
             return df
         return df[['task_id', 'task_name', 'last_modified', 'task_params']]
+
+    def get_data(self, task_name: str) -> Union[list, Any]:
+        """Load newest task output data.
+
+        Args:
+            task_name: gokart's task name.
+
+        Returns:
+            The return value is newest data or data list.
+        """
+        df = self.get_task_df()
+        df = df.sort_values(by='last_modified', ascending=False)
+        return self.load(df.query(f'task_name=="{task_name}"')['task_id'].iloc[0])
 
     def load(self, task_id: int) -> Union[list, Any]:
         """Load File using gokart.load.

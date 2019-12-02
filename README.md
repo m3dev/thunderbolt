@@ -19,13 +19,13 @@ pip install thunderbolt
 
 If you specify `TASK_WORKSPACE_DIRECTORY`, thunderbolt reads the log.  
 So making tasks pandas.DataFrame, and load dumped data.  
-This is also possible from S3.  
+This is also possible from S3 or GCS. (s3://~~, gs://~~)  
   
 Example:
 ```
 from thunderbolt import Thunderbolt
 
-tb = Thunderbolt()
+tb = Thunderbolt(PATH_TO_WORKSPACE_DIRECTORY)
 print(tb.get_task_df())  # check task_id
 print(tb.load(task_id=0))
 ```

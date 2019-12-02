@@ -18,11 +18,6 @@ class SimpleLocalTest(unittest.TestCase):
 
     def test_init(self):
         self.assertEqual(self.tb.workspace_directory, self.get_test_case_path())
-        self.assertEqual(self.tb.task_filters, [''])
-        self.assertEqual(self.tb.bucket_name, None)
-        self.assertEqual(self.tb.prefix, None)
-        self.assertEqual(self.tb.resource, None)
-        self.assertEqual(self.tb.s3client, None)
         task = self.tb.tasks[0]
         self.assertEqual(task['task_name'], 'TestCaseTask')
         self.assertEqual(task['task_hash'], 'c5b4a28a606228ac23477557c774a3a0')
