@@ -13,8 +13,6 @@ deploy:
     tags: true
   provider: pypi
   user: vaaaaanquish
-  distributions: sdist bdist_wheel
-  server: https://upload.pypi.org/legacy/
   skip_existing: true
   password:
     secure: d/eJX2aos/Gm5yf1S/ALdhmpX1g6/6uwXTjkwdWyqpR4p6fLJBlACPlDZG+v4aqu/zl/trxIvjI7W3ypDvoU3HlWhvtdRcjEpbfZIatO7HVwN0JqPPBLu9HdD7dZmi9fcjvOcBpazlPLs9MemvGzuXNo//C/G/nws4wlZ8azm3aGgcd4kIoUchcP7C1cfNdqXnHW8Pvva/RHc1fznxLn9msJGC6/+mNbDb+hZyFS3/yUeHYcGMIW9dfSalNgq9JlNWi2AWvzgBeeQmRVsg9vD5rE6+penNHN7LsHu1y2pxRCVns6hxzLjIB5TsUPzSI32tisonVKsemKpJhFcQ9sbp7kLpLTrqgTrlta9T8jcoA9CgE9fhDP6UHcAFmQ9184xfh2/NFLhDwrCXzvDfYWLjmBTCXLLWIFvorXdffpq3HEjTIZp+ZehzJJOtdMvSaB4vgJ2naMPsXzQBp5eDxY9GYS3L+ddVGbN6M3HpKapE/ifjxYuK5yMRB1vq07yyIX5DLMdgri4lgIjwEwAEmzvAxRy1pDs6CPhoJhw57Nmc0dMOnVK0aUvGrUwsQFBoksvz2jBPobNv1X6fpB1X9d5cKbhwmsUTv9KUa7AV2nu76hebkYXHnQL6de+/xx2bhUVIDYnruHswwBB7kAjyBRooHSV37/xg5Y5ITV6/0FU/Y=
