@@ -37,6 +37,14 @@ class Thunderbolt:
             return GCSClient(self.workspace_directory, filters, tqdm_disable)
         return LocalDirectoryClient(self.workspace_directory, filters, tqdm_disable)
 
+    def _convert_absolute_path(self, x):
+        x = x.lstrip('.') if x.startswith('.') else x
+        x = x.lstrip('/') if x.startswith('/') else x
+        if self.workspace_directory.rstrip('/').split('/')[-1] == x.split('/')[0]:
+            x = '/'.join(x.split('/')[1:])
+        x = os.path.join(os.path.dirname(self.workspace_directory), x)
+        return os.path.abspath(x)
+
     def get_task_df(self, all_data: bool = False) -> pd.DataFrame:
         """Get task's pandas DataFrame.
 
@@ -94,7 +102,7 @@ class Thunderbolt:
         Returns:
             Loaded data.
         """
-        file_path = os.path.join(os.path.dirname(self.workspace_directory), file_name)
+        file_path = self._convert_absolute_path(file_name)
         if file_path.endswith('.zip'):
             tmp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.path.abspath(self.tmp_path))
             zip_client = gokart.zip_client_util.make_zip_client(file_path, tmp_path)
