@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
@@ -20,8 +20,7 @@ setup(
     author_email='6syun9@gmail.com',
     url='https://vaaaaanquish.jp',
     install_requires=install_requires,
-    packages=['thunderbolt'],
-    package_dir={'thunderbolt': 'thunderbolt'},
+    packages=find_packages(),
     platforms='any',
     tests_require=['moto==1.3.6'],
     test_suite='test',
