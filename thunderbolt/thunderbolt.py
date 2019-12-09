@@ -38,11 +38,10 @@ class Thunderbolt:
         return LocalDirectoryClient(self.workspace_directory, filters, tqdm_disable)
 
     def _convert_absolute_path(self, x):
-        x = x.lstrip('.') if x.startswith('.') else x
-        x = x.lstrip('/') if x.startswith('/') else x
+        x = x.lstrip('.').lstrip('/')
         if self.workspace_directory.rstrip('/').split('/')[-1] == x.split('/')[0]:
             x = '/'.join(x.split('/')[1:])
-        x = os.path.join(os.path.dirname(self.workspace_directory), x)
+        x = os.path.join(self.workspace_directory, x)
         return os.path.abspath(x)
 
     def get_task_df(self, all_data: bool = False) -> pd.DataFrame:
