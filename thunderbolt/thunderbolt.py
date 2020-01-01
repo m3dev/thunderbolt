@@ -26,23 +26,15 @@ class Thunderbolt:
         if not workspace_directory:
             env = os.getenv('TASK_WORKSPACE_DIRECTORY')
             workspace_directory = env if env else ''
-        self.workspace_directory = workspace_directory
-        self.client = self._get_client([task_filters] if type(task_filters) == str else task_filters, not use_tqdm)
+        self.client = self._get_client(workspace_directory, [task_filters] if type(task_filters) == str else task_filters, not use_tqdm)
         self.tasks = self.client.get_tasks()
 
-    def _get_client(self, filters, tqdm_disable):
-        if self.workspace_directory.startswith('s3://'):
-            return S3Client(self.workspace_directory, filters, tqdm_disable)
-        elif self.workspace_directory.startswith('gs://'):
-            return GCSClient(self.workspace_directory, filters, tqdm_disable)
-        return LocalDirectoryClient(self.workspace_directory, filters, tqdm_disable)
-
-    def _convert_absolute_path(self, x):
-        x = x.lstrip('.').lstrip('/')
-        if self.workspace_directory.rstrip('/').split('/')[-1] == x.split('/')[0]:
-            x = '/'.join(x.split('/')[1:])
-        x = os.path.join(self.workspace_directory, x)
-        return os.path.abspath(x)
+    def _get_client(self, workspace_directory, filters, tqdm_disable):
+        if workspace_directory.startswith('s3://'):
+            return S3Client(workspace_directory, filters, tqdm_disable)
+        elif workspace_directory.startswith('gs://') or workspace_directory.startswith('gcs://'):
+            return GCSClient(workspace_directory, filters, tqdm_disable)
+        return LocalDirectoryClient(workspace_directory, filters, tqdm_disable)
 
     def get_task_df(self, all_data: bool = False) -> pd.DataFrame:
         """Get task's pandas DataFrame.
@@ -101,7 +93,7 @@ class Thunderbolt:
         Returns:
             Loaded data.
         """
-        file_path = self._convert_absolute_path(file_name)
+        file_path = self.client.convert_absolute_path(file_name)
         if file_path.endswith('.zip'):
             tmp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.path.abspath(self.tmp_path))
             zip_client = gokart.zip_client_util.make_zip_client(file_path, tmp_path)
