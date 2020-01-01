@@ -49,4 +49,4 @@ class GCSClient:
         if self.workspace_directory.rstrip('/').split('/')[-1] == x.split('/')[0]:
             x = '/'.join(x.split('/')[1:])
         x = os.path.join(self.workspace_directory, x)
-        return os.path.abspath(x)
+        return x
