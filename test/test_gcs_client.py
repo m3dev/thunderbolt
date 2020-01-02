@@ -7,8 +7,8 @@ class TestGCSClient(unittest.TestCase):
         self.base_path = 'gs://bucket/prefix/'
         self.client = GCSClient(self.base_path, None, None)
 
-    def test_convert_absolute_path(self):
+    def test_to_absolute_path(self):
         source = 'hoge/piyo'
         target = self.base_path + 'hoge/piyo'
-        output = self.client.convert_absolute_path(source)
+        output = self.client.to_absolute_path(source)
         self.assertEqual(output, target)

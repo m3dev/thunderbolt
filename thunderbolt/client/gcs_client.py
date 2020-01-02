@@ -43,7 +43,7 @@ class GCSClient:
         bucket, obj = self.gcs_client._path_to_bucket_and_key(x)
         return self.gcs_client.client.objects().get(bucket=bucket, object=obj).execute()
 
-    def convert_absolute_path(self, x: str) -> str:
+    def to_absolute_path(self, x: str) -> str:
         """get GCS file path"""
         x = x.lstrip('.').lstrip('/')
         if self.workspace_directory.rstrip('/').split('/')[-1] == x.split('/')[0]:

@@ -36,7 +36,7 @@ class LocalDirectoryClient:
             }
         return tasks
 
-    def convert_absolute_path(self, x: str) -> str:
+    def to_absolute_path(self, x: str) -> str:
         """get file path"""
         x = x.lstrip('.').lstrip('/')
         if self.workspace_directory.rstrip('/').split('/')[-1] == x.split('/')[0]:

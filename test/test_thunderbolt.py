@@ -124,7 +124,7 @@ class TestThunderbolt(unittest.TestCase):
 
             return mock(file_path)
 
-        self.tb.client.convert_absolute_path = MagicMock(side_effect=lambda x: x)
+        self.tb.client.to_absolute_path = MagicMock(side_effect=lambda x: x)
         with patch('gokart.target.make_target', side_effect=make_target):
             output = self.tb._target_load(source)
         self.assertEqual(output, target)

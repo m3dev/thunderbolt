@@ -7,8 +7,8 @@ class TestS3Client(unittest.TestCase):
         self.base_path = 's3://bucket/prefix/'
         self.client = S3Client(self.base_path, None, None)
 
-    def test_convert_absolute_path(self):
+    def test_to_absolute_path(self):
         source = 'hoge/piyo'
         target = self.base_path + 'hoge/piyo'
-        output = self.client.convert_absolute_path(source)
+        output = self.client.to_absolute_path(source)
         self.assertEqual(output, target)

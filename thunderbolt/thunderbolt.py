@@ -93,7 +93,7 @@ class Thunderbolt:
         Returns:
             Loaded data.
         """
-        file_path = self.client.convert_absolute_path(file_name)
+        file_path = self.client.to_absolute_path(file_name)
         if file_path.endswith('.zip'):
             tmp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.path.abspath(self.tmp_path))
             zip_client = gokart.zip_client_util.make_zip_client(file_path, tmp_path)
