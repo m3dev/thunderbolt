@@ -42,3 +42,10 @@ class GCSClient:
         """get GCS object meta data"""
         bucket, obj = self.gcs_client._path_to_bucket_and_key(x)
         return self.gcs_client.client.objects().get(bucket=bucket, object=obj).execute()
+
+    def to_absolute_path(self, x: str) -> str:
+        """get GCS file path"""
+        x = x.lstrip('.').lstrip('/')
+        if self.workspace_directory.rstrip('/').split('/')[-1] == x.split('/')[0]:
+            x = '/'.join(x.split('/')[1:])
+        return x

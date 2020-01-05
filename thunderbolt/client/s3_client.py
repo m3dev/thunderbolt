@@ -54,3 +54,10 @@ class S3Client:
             if 'Contents' in response and 'IsTruncated' in response:
                 return self._get_s3_keys(keys=keys, marker=keys[-1]['Key'])
         return keys
+
+    def to_absolute_path(self, x: str) -> str:
+        """get S3 file path"""
+        x = x.lstrip('.').lstrip('/')
+        if self.workspace_directory.rstrip('/').split('/')[-1] == x.split('/')[0]:
+            x = '/'.join(x.split('/')[1:])
+        return x

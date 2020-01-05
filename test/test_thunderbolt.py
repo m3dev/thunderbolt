@@ -1,55 +1,130 @@
 import thunderbolt
 import unittest
-from os import path
+from unittest.mock import patch
+from mock import MagicMock
+from contextlib import ExitStack
 import pandas as pd
-import pickle
-"""
-requires:
-python sample.py test.TestCaseTask --param=sample --number=1 --workspace-directory=./test_case --local-scheduler
-
-running:
-python -m unittest discover -s ./
-"""
+from thunderbolt.client.local_directory_client import LocalDirectoryClient
+from thunderbolt.client.gcs_client import GCSClient
+from thunderbolt.client.s3_client import S3Client
 
 
-class SimpleLocalTest(unittest.TestCase):
+class TestThunderbolt(unittest.TestCase):
     def setUp(self):
-        self.tb = thunderbolt.Thunderbolt(self.get_test_case_path())
+        def get_tasks():
+            pass
 
-    def test_init(self):
-        self.assertEqual(self.tb.workspace_directory, self.get_test_case_path())
-        task = self.tb.tasks[0]
-        self.assertEqual(task['task_name'], 'TestCaseTask')
-        self.assertEqual(task['task_hash'], 'c5b4a28a606228ac23477557c774a3a0')
-        self.assertListEqual(task['task_log']['file_path'], ['./test_case/sample/test_case_c5b4a28a606228ac23477557c774a3a0.pkl'])
-        self.assertDictEqual(task['task_params'], {'param': 'sample', 'number': '1'})
+        module_path = 'thunderbolt.client'
+        with ExitStack() as stack:
+            for module in ['local_directory_client.LocalDirectoryClient', 'gcs_client.GCSClient', 's3_client.S3Client']:
+                stack.enter_context(patch('.'.join([module_path, module, 'get_tasks']), side_effect=get_tasks))
+            self.tb = thunderbolt.Thunderbolt(None)
 
-    def get_test_case_path(self, file_name: str = ''):
-        p = path.abspath(path.join(path.dirname(__file__), 'test_case'))
-        if file_name:
-            return path.join(p, file_name)
-        print(p)
-        return p
+    def test_get_client(self):
+        source_workspace_directory = ['s3://', 'gs://', 'gcs://', './local', 'hoge']
+        source_filters = []
+        source_tqdm_disable = False
+        target = [S3Client, GCSClient, GCSClient, LocalDirectoryClient, LocalDirectoryClient]
+
+        for s, t in zip(source_workspace_directory, target):
+            output = self.tb._get_client(s, source_filters, source_tqdm_disable)
+            self.assertEqual(type(output), t)
 
     def test_get_task_df(self):
-        df = self.tb.get_task_df(all_data=True)
-        df = df.drop('last_modified', axis=1)
-        target_df = pd.DataFrame([{
-            'task_id': 0,
-            'task_name': 'TestCaseTask',
-            'task_params': {
-                'param': 'sample',
-                'number': '1'
-            },
-            'task_hash': 'c5b4a28a606228ac23477557c774a3a0',
-            'task_log': {
-                'file_path': ['./test_case/sample/test_case_c5b4a28a606228ac23477557c774a3a0.pkl']
+        self.tb.tasks = {
+            'Task1': {
+                'task_name': 'task_name_1',
+                'last_modified': 'last_modified_1',
+                'task_params': 'task_params_1',
+                'task_hash': 'task_hash_1',
+                'task_log': 'task_log_1'
             }
-        }])
-        pd.testing.assert_frame_equal(df, target_df)
+        }
+
+        target = pd.DataFrame({
+            'task_id': ['Task1'],
+            'task_name': ['task_name_1'],
+            'last_modified': ['last_modified_1'],
+            'task_params': ['task_params_1'],
+            'task_hash': ['task_hash_1'],
+            'task_log': ['task_log_1']
+        })
+        output = self.tb.get_task_df(all_data=True)
+        pd.testing.assert_frame_equal(output, target)
+
+        target = pd.DataFrame({
+            'task_id': ['Task1'],
+            'task_name': ['task_name_1'],
+            'last_modified': ['last_modified_1'],
+            'task_params': ['task_params_1'],
+        })
+        output = self.tb.get_task_df(all_data=False)
+        pd.testing.assert_frame_equal(output, target)
+
+    def test_get_data(self):
+        self.tb.tasks = {
+            'Task1': {
+                'task_name': 'task',
+                'last_modified': 'last_modified_1',
+                'task_params': 'task_params_1',
+                'task_hash': 'task_hash_1',
+                'task_log': 'task_log_1'
+            },
+            'Task2': {
+                'task_name': 'task',
+                'last_modified': 'last_modified_2',
+                'task_params': 'task_params_2',
+                'task_hash': 'task_hash_2',
+                'task_log': 'task_log_2'
+            }
+        }
+        target = 'Task2'
+
+        with patch('thunderbolt.Thunderbolt.load', side_effect=lambda x: x):
+            output = self.tb.get_data('task')
+        self.assertEqual(output, target)
 
     def test_load(self):
-        x = self.tb.load(0)
-        with open(self.get_test_case_path('sample/test_case_c5b4a28a606228ac23477557c774a3a0.pkl'), 'rb') as f:
-            target = pickle.load(f)
-        self.assertEqual(x, target)
+        self.tb.tasks = {
+            'Task1': {
+                'task_log': {
+                    'file_path': ['./hoge', './piyo']
+                }
+            },
+            'Task2': {
+                'task_log': {
+                    'file_path': ['./hoge']
+                }
+            },
+        }
+
+        source = 'Task1'
+        target = ['./hoge', './piyo']
+        with patch('thunderbolt.Thunderbolt._target_load', side_effect=lambda x: x):
+            output = self.tb.load(source)
+        self.assertListEqual(output, target)
+
+        source = 'Task2'
+        target = './hoge'
+        with patch('thunderbolt.Thunderbolt._target_load', side_effect=lambda x: x):
+            output = self.tb.load(source)
+        self.assertEqual(output, target)
+
+    def test_target_load(self):
+        source = 'hoge'
+        target = 'hoge'
+
+        def make_target(file_path):
+            class mock:
+                def __init__(self, file_path):
+                    self.file_path = file_path
+
+                def load(self):
+                    return file_path
+
+            return mock(file_path)
+
+        self.tb.client.to_absolute_path = MagicMock(side_effect=lambda x: x)
+        with patch('gokart.target.make_target', side_effect=make_target):
+            output = self.tb._target_load(source)
+        self.assertEqual(output, target)
