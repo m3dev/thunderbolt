@@ -25,9 +25,9 @@ Example:
 ```
 from thunderbolt import Thunderbolt
 
-tb = Thunderbolt(PATH_TO_WORKSPACE_DIRECTORY)
-print(tb.get_task_df())  # check task_id
-print(tb.load(task_id=0))
+tb = Thunderbolt()
+print(tb.get_task_df())
+print(tb.get_data('TASK_NAME'))
 ```
 
 Please look here too: https://github.com/m3dev/thunderbolt/blob/master/examples/example.ipynb  
