@@ -9,7 +9,7 @@ from gokart.gcs_config import GCSConfig
 
 class GCSClient:
     def __init__(self, workspace_directory: str = '', task_filters: List[str] = [], tqdm_disable: bool = False):
-        """must set $GOOGLE_APPLICATION_CREDENTIALS"""
+        """must set $GCS_CREDENTIAL"""
         self.workspace_directory = workspace_directory
         self.task_filters = task_filters
         self.tqdm_disable = tqdm_disable
