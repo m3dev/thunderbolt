@@ -12,12 +12,6 @@ class SampleTask(gokart.TaskOnKart):
     name = luigi.Parameter()
     number = luigi.IntParameter()
     
-    def require(self):
-        return
-
-    def output(self):
-        return self.make_target(f'{self.name}/sample.pkl')
-
     def run(self):
         self.dump(f'this is sample output. model number: {self.number}')
 
@@ -26,9 +20,6 @@ class SampleTask(gokart.TaskOnKart):
 class SecondTask(gokart.TaskOnKart):
     task_namespace = 'sample'
     param = luigi.Parameter()
-
-    def output(self):
-        return self.make_target(f'SECOND_TASK/task.pkl')
 
     def run(self):
         sample = self.load()
