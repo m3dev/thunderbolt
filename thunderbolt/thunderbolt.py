@@ -57,18 +57,23 @@ class Thunderbolt:
             return df
         return df[['task_id', 'task_name', 'last_modified', 'task_params']]
 
-    def get_data(self, task_name: str) -> Union[list, Any]:
+    def get_data(self, task_name: str, top_k: int = 1) -> Union[list, Any]:
         """Load newest task output data.
 
         Args:
             task_name: gokart's task name.
+            top_k: top-k of newest output data.
 
         Returns:
             The return value is newest data or data list.
         """
         df = self.get_task_df()
         df = df.sort_values(by='last_modified', ascending=False)
-        return self.load(df.query(f'task_name=="{task_name}"')['task_id'].iloc[0])
+
+        data = [self.load(df.query(f'task_name=="{task_name}"')['task_id'].iloc[i]) for i in range(top_k)]
+        if len(data) == 1:
+            return data[0]
+        return data
 
     def load(self, task_id: int) -> Union[list, Any]:
         """Load File using gokart.load.
