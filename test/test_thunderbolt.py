@@ -84,6 +84,36 @@ class TestThunderbolt(unittest.TestCase):
             output = self.tb.get_data('task')
         self.assertEqual(output, target)
 
+    def test_get_data_top_k(self):
+        self.tb.tasks = {
+            'Task1': {
+                'task_name': 'task',
+                'last_modified': 'last_modified_1',
+                'task_params': 'task_params_1',
+                'task_hash': 'task_hash_1',
+                'task_log': 'task_log_1'
+            },
+            'Task2': {
+                'task_name': 'task',
+                'last_modified': 'last_modified_2',
+                'task_params': 'task_params_2',
+                'task_hash': 'task_hash_2',
+                'task_log': 'task_log_2'
+            },
+            'Task3': {
+                'task_name': 'task',
+                'last_modified': 'last_modified_3',
+                'task_params': 'task_params_3',
+                'task_hash': 'task_hash_3',
+                'task_log': 'task_log_3'
+            }
+        }
+        target = ['Task3', 'Task2']
+
+        with patch('thunderbolt.Thunderbolt.load', side_effect=lambda x: x):
+            output = self.tb.get_data('task', 2)
+        self.assertEqual(output, target)
+
     def test_load(self):
         self.tb.tasks = {
             'Task1': {
