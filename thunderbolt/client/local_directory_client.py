@@ -16,8 +16,8 @@ class LocalDirectoryClient:
     def get_tasks(self) -> Dict[int, Dict[str, Any]]:
         """Load all task_log from workspace_directory."""
         files = {str(path) for path in Path(os.path.join(self.workspace_directory, 'log/task_log')).rglob('*')}
-        tasks = {}
-        for i, x in enumerate(tqdm(files, disable=self.tqdm_disable)):
+        tasks_list = list()
+        for x in tqdm(files, disable=self.tqdm_disable):
             n = x.split('/')[-1]
             if self.task_filters and not [x for x in self.task_filters if x in n]:
                 continue
@@ -27,13 +27,14 @@ class LocalDirectoryClient:
                 task_log = pickle.load(f)
             with open(x.replace('task_log', 'task_params'), 'rb') as f:
                 task_params = pickle.load(f)
-            tasks[i] = {
+            tasks_list.append({
                 'task_name': '_'.join(n[:-1]),
                 'task_params': task_params,
                 'task_log': task_log,
                 'last_modified': modified,
                 'task_hash': n[-1].split('.')[0],
-            }
+            })
+        tasks = {i: task for i, task in enumerate(sorted(tasks_list, key=lambda x: x['last_modified']))}
         return tasks
 
     def to_absolute_path(self, x: str) -> str:
