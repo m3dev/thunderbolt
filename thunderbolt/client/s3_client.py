@@ -17,7 +17,7 @@ class S3Client:
         self.resource = boto3.resource('s3')
         self.s3client = Session().client('s3')
 
-    def get_tasks(self) -> Dict[int, Dict[str, Any]]:
+    def get_tasks(self) -> List[Dict[str, Any]]:
         """Load all task_log from S3"""
         files = self._get_s3_keys([], '')
         tasks_list = list()
@@ -33,8 +33,7 @@ class S3Client:
                 'last_modified': x['LastModified'],
                 'task_hash': n[-1].split('.')[0]
             })
-        tasks = {i: task for i, task in enumerate(sorted(tasks_list, key=lambda x: x['last_modified']))}
-        return tasks
+        return tasks_list
 
     def _get_s3_keys(self, keys: List[Dict[str, Any]] = [], marker: str = '') -> List[Dict[str, Any]]:
         """Recursively get Key from S3.

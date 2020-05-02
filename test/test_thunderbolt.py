@@ -12,7 +12,7 @@ from thunderbolt.client.s3_client import S3Client
 class TestThunderbolt(unittest.TestCase):
     def setUp(self):
         def get_tasks():
-            pass
+            return []
 
         module_path = 'thunderbolt.client'
         with ExitStack() as stack:

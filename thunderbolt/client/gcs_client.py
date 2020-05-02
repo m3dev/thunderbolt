@@ -15,7 +15,7 @@ class GCSClient:
         self.tqdm_disable = tqdm_disable
         self.gcs_client = GCSConfig().get_gcs_client()
 
-    def get_tasks(self) -> Dict[int, Dict[str, Any]]:
+    def get_tasks(self) -> List[Dict[str, Any]]:
         """Load all task_log from GCS"""
         files = self._get_gcs_objects()
         tasks_list = list()
@@ -32,8 +32,7 @@ class GCSClient:
                 'last_modified': datetime.strptime(meta['updated'].split('.')[0], '%Y-%m-%dT%H:%M:%S'),
                 'task_hash': n[-1].split('.')[0]
             })
-        tasks = {i: task for i, task in enumerate(sorted(tasks_list, key=lambda x: x['last_modified']))}
-        return tasks
+        return tasks_list
 
     def _get_gcs_objects(self) -> List[str]:
         """get GCS objects"""

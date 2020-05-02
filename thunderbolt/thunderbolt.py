@@ -1,5 +1,5 @@
 import os
-from typing import Union, List, Any
+from typing import Union, List, Dict, Any
 import shutil
 
 import gokart
@@ -27,7 +27,7 @@ class Thunderbolt:
             env = os.getenv('TASK_WORKSPACE_DIRECTORY')
             workspace_directory = env if env else ''
         self.client = self._get_client(workspace_directory, [task_filters] if type(task_filters) == str else task_filters, not use_tqdm)
-        self.tasks = self.client.get_tasks()
+        self.tasks = self._get_tasks_dic(tasks_list=self.client.get_tasks())
 
     def _get_client(self, workspace_directory, filters, tqdm_disable):
         if workspace_directory.startswith('s3://'):
@@ -35,6 +35,10 @@ class Thunderbolt:
         elif workspace_directory.startswith('gs://') or workspace_directory.startswith('gcs://'):
             return GCSClient(workspace_directory, filters, tqdm_disable)
         return LocalDirectoryClient(workspace_directory, filters, tqdm_disable)
+
+    def _get_tasks_dic(self, tasks_list: List[Dict]) -> Dict[int, Dict]:
+        # return {i: task for i, task in enumerate(sorted(tasks_list, key=lambda x: x['last_modified']))}
+        return {i: task for i, task in enumerate(tasks_list)}
 
     def get_task_df(self, all_data: bool = False) -> pd.DataFrame:
         """Get task's pandas DataFrame.

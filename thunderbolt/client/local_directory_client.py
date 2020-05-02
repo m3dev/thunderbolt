@@ -13,7 +13,7 @@ class LocalDirectoryClient:
         self.task_filters = task_filters
         self.tqdm_disable = tqdm_disable
 
-    def get_tasks(self) -> Dict[int, Dict[str, Any]]:
+    def get_tasks(self) -> List[Dict[str, Any]]:
         """Load all task_log from workspace_directory."""
         files = {str(path) for path in Path(os.path.join(self.workspace_directory, 'log/task_log')).rglob('*')}
         tasks_list = list()
@@ -34,8 +34,7 @@ class LocalDirectoryClient:
                 'last_modified': modified,
                 'task_hash': n[-1].split('.')[0],
             })
-        tasks = {i: task for i, task in enumerate(sorted(tasks_list, key=lambda x: x['last_modified']))}
-        return tasks
+        return tasks_list
 
     def to_absolute_path(self, x: str) -> str:
         """get file path"""
