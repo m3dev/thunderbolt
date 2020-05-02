@@ -37,8 +37,7 @@ class Thunderbolt:
         return LocalDirectoryClient(workspace_directory, filters, tqdm_disable)
 
     def _get_tasks_dic(self, tasks_list: List[Dict]) -> Dict[int, Dict]:
-        # return {i: task for i, task in enumerate(sorted(tasks_list, key=lambda x: x['last_modified']))}
-        return {i: task for i, task in enumerate(tasks_list)}
+        return {i: task for i, task in enumerate(sorted(tasks_list, key=lambda x: x['last_modified']))}
 
     def get_task_df(self, all_data: bool = False) -> pd.DataFrame:
         """Get task's pandas DataFrame.
