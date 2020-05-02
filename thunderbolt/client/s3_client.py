@@ -17,23 +17,23 @@ class S3Client:
         self.resource = boto3.resource('s3')
         self.s3client = Session().client('s3')
 
-    def get_tasks(self) -> Dict[int, Dict[str, Any]]:
+    def get_tasks(self) -> List[Dict[str, Any]]:
         """Load all task_log from S3"""
         files = self._get_s3_keys([], '')
-        tasks = {}
-        for i, x in enumerate(tqdm(files, disable=self.tqdm_disable)):
+        tasks_list = list()
+        for x in tqdm(files, disable=self.tqdm_disable):
             n = x['Key'].split('/')[-1]
             if self.task_filters and not [x for x in self.task_filters if x in n]:
                 continue
             n = n.split('_')
-            tasks[i] = {
+            tasks_list.append({
                 'task_name': '_'.join(n[:-1]),
                 'task_params': pickle.loads(self.resource.Object(self.bucket_name, x['Key'].replace('task_log', 'task_params')).get()['Body'].read()),
                 'task_log': pickle.loads(self.resource.Object(self.bucket_name, x['Key']).get()['Body'].read()),
                 'last_modified': x['LastModified'],
                 'task_hash': n[-1].split('.')[0]
-            }
-        return tasks
+            })
+        return tasks_list
 
     def _get_s3_keys(self, keys: List[Dict[str, Any]] = [], marker: str = '') -> List[Dict[str, Any]]:
         """Recursively get Key from S3.

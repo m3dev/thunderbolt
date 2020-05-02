@@ -12,7 +12,7 @@ from thunderbolt.client.s3_client import S3Client
 class TestThunderbolt(unittest.TestCase):
     def setUp(self):
         def get_tasks():
-            pass
+            return []
 
         module_path = 'thunderbolt.client'
         with ExitStack() as stack:
@@ -29,6 +29,43 @@ class TestThunderbolt(unittest.TestCase):
         for s, t in zip(source_workspace_directory, target):
             output = self.tb._get_client(s, source_filters, source_tqdm_disable)
             self.assertEqual(type(output), t)
+
+    def test_get_tasks_dic(self):
+        tasks_list = [
+            {
+                'task_name': 'task',
+                'last_modified': 'last_modified_2',
+                'task_params': 'task_params_1',
+                'task_hash': 'task_hash_1',
+                'task_log': 'task_log_1'
+            },
+            {
+                'task_name': 'task',
+                'last_modified': 'last_modified_1',
+                'task_params': 'task_params_1',
+                'task_hash': 'task_hash_1',
+                'task_log': 'task_log_1'
+            }
+        ]
+        
+        target = {
+            0: {
+                'task_name': 'task',
+                'last_modified': 'last_modified_1',
+                'task_params': 'task_params_1',
+                'task_hash': 'task_hash_1',
+                'task_log': 'task_log_1'
+            },
+            1: {
+                'task_name': 'task',
+                'last_modified': 'last_modified_2',
+                'task_params': 'task_params_1',
+                'task_hash': 'task_hash_1',
+                'task_log': 'task_log_1'
+            }
+        }
+        output = self.tb._get_tasks_dic(tasks_list=tasks_list)
+        self.assertDictEqual(output, target)
 
     def test_get_task_df(self):
         self.tb.tasks = {

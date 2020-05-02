@@ -15,24 +15,24 @@ class GCSClient:
         self.tqdm_disable = tqdm_disable
         self.gcs_client = GCSConfig().get_gcs_client()
 
-    def get_tasks(self) -> Dict[int, Dict[str, Any]]:
+    def get_tasks(self) -> List[Dict[str, Any]]:
         """Load all task_log from GCS"""
         files = self._get_gcs_objects()
-        tasks = {}
-        for i, x in enumerate(tqdm(files, disable=self.tqdm_disable)):
+        tasks_list = list()
+        for x in tqdm(files, disable=self.tqdm_disable):
             n = x.split('/')[-1]
             if self.task_filters and not [f for f in self.task_filters if f in n]:
                 continue
             n = n.split('_')
             meta = self._get_gcs_object_info(x)
-            tasks[i] = {
+            tasks_list.append({
                 'task_name': '_'.join(n[:-1]),
                 'task_params': pickle.load(self.gcs_client.download(x.replace('task_log', 'task_params'))),
                 'task_log': pickle.load(self.gcs_client.download(x)),
                 'last_modified': datetime.strptime(meta['updated'].split('.')[0], '%Y-%m-%dT%H:%M:%S'),
                 'task_hash': n[-1].split('.')[0]
-            }
-        return tasks
+            })
+        return tasks_list
 
     def _get_gcs_objects(self) -> List[str]:
         """get GCS objects"""
