@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "thunderbolt"
+version = "0.0.0"  # using poetry-dynamic-versioning
+description="gokart file downloader"
+authors = ["vaaaaanquish <6syun9@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/m3dev/thunderbolt"
+repository = "https://github.com/m3dev/thunderbolt"
+documentation = ""
+
+[tool.poetry-dynamic-versioning]
+enable = true
+style = "pep440"
+pattern = "^(?P<base>\\d+\\.\\d+\\.\\d+)"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+gokart = "^=0.2.4"
+boto3 = "*"
+tqdm = "*"
+moto = "==1.3.6"
+
+[build-system]
+requires = ["poetry"]
+build-backend = "poetry.masonry.api"
