@@ -21,7 +21,7 @@ class TestLocalCache(unittest.TestCase):
 
     def test_convert_file_path(self):
         output = self.local_cache._convert_file_path('test.pkl')
-        target = Path(os.path.join(os.getcwd(), '.thunderbolt', self.base_path.split('/')[-1], 'test.json'))
+        target = Path(os.path.join(os.getcwd(), '.thunderbolt', self.base_path.split('/')[-1], 'test.pkl'))
         self.assertEqual(target, output)
 
     def tearDown(self):
