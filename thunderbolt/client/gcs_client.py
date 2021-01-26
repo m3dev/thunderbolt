@@ -20,8 +20,6 @@ class GCSClient:
         """Load all task_log from GCS"""
         files = self._get_gcs_objects()
         tasks_list = list()
-        not_found_log_file_num = 0
-
         for x in tqdm(files, disable=self.tqdm_disable):
             n = x.split('/')[-1]
             if self.task_filters and not [f for f in self.task_filters if f in n]:
@@ -38,10 +36,10 @@ class GCSClient:
                     'task_hash': n[-1].split('.')[0]
                 })
             except Exception:
-                not_found_log_file_num += 1
+                continue
 
-        if not_found_log_file_num:
-            warnings.warn(f'[NOT FOUND LOGS] not found log file num: {not_found_log_file_num}')
+        if len(tasks_list) != len(files):
+            warnings.warn(f'[NOT FOUND LOGS] target file: {len(files)}, found log file: {len(tasks_list)}')
 
         return tasks_list
 

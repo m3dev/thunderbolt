@@ -18,8 +18,6 @@ class LocalDirectoryClient:
         """Load all task_log from workspace_directory."""
         files = {str(path) for path in Path(os.path.join(self.workspace_directory, 'log/task_log')).rglob('*')}
         tasks_list = list()
-        not_found_log_file_num = 0
-
         for x in tqdm(files, disable=self.tqdm_disable):
             n = x.split('/')[-1]
             if self.task_filters and not [x for x in self.task_filters if x in n]:
@@ -33,7 +31,6 @@ class LocalDirectoryClient:
                 with open(x.replace('task_log', 'task_params'), 'rb') as f:
                     task_params = pickle.load(f)
             except Exception:
-                not_found_log_file_num += 1
                 continue
 
             tasks_list.append({
@@ -44,8 +41,8 @@ class LocalDirectoryClient:
                 'task_hash': n[-1].split('.')[0],
             })
 
-        if not_found_log_file_num:
-            warnings.warn(f'[NOT FOUND LOGS] not found log file num: {not_found_log_file_num}')
+        if len(tasks_list) != len(files):
+            warnings.warn(f'[NOT FOUND LOGS] target file: {len(files)}, found log file: {len(tasks_list)}')
 
         return tasks_list
 
