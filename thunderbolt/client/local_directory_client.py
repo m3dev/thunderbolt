@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
 from pathlib import Path
+import warnings
 import pickle
 from typing import List, Dict, Any
 
@@ -17,16 +18,24 @@ class LocalDirectoryClient:
         """Load all task_log from workspace_directory."""
         files = {str(path) for path in Path(os.path.join(self.workspace_directory, 'log/task_log')).rglob('*')}
         tasks_list = list()
+        not_found_log_file_num = 0
+
         for x in tqdm(files, disable=self.tqdm_disable):
             n = x.split('/')[-1]
             if self.task_filters and not [x for x in self.task_filters if x in n]:
                 continue
             n = n.split('_')
-            modified = datetime.fromtimestamp(os.stat(x).st_mtime)
-            with open(x, 'rb') as f:
-                task_log = pickle.load(f)
-            with open(x.replace('task_log', 'task_params'), 'rb') as f:
-                task_params = pickle.load(f)
+
+            try:
+                modified = datetime.fromtimestamp(os.stat(x).st_mtime)
+                with open(x, 'rb') as f:
+                    task_log = pickle.load(f)
+                with open(x.replace('task_log', 'task_params'), 'rb') as f:
+                    task_params = pickle.load(f)
+            except Exception:
+                not_found_log_file_num += 1
+                continue
+
             tasks_list.append({
                 'task_name': '_'.join(n[:-1]),
                 'task_params': task_params,
@@ -34,6 +43,10 @@ class LocalDirectoryClient:
                 'last_modified': modified,
                 'task_hash': n[-1].split('.')[0],
             })
+
+        if not_found_log_file_num:
+            warnings.warn(f'[NOT FOUND LOGS] not found log file num: {not_found_log_file_num}')
+
         return tasks_list
 
     def to_absolute_path(self, x: str) -> str:
