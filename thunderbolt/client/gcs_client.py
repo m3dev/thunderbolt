@@ -1,6 +1,7 @@
 import os
 import pickle
 from tqdm import tqdm
+import warnings
 from datetime import datetime
 from typing import List, Dict, Any
 
@@ -24,14 +25,22 @@ class GCSClient:
             if self.task_filters and not [f for f in self.task_filters if f in n]:
                 continue
             n = n.split('_')
-            meta = self._get_gcs_object_info(x)
-            tasks_list.append({
-                'task_name': '_'.join(n[:-1]),
-                'task_params': pickle.load(self.gcs_client.download(x.replace('task_log', 'task_params'))),
-                'task_log': pickle.load(self.gcs_client.download(x)),
-                'last_modified': datetime.strptime(meta['updated'].split('.')[0], '%Y-%m-%dT%H:%M:%S'),
-                'task_hash': n[-1].split('.')[0]
-            })
+
+            try:
+                meta = self._get_gcs_object_info(x)
+                tasks_list.append({
+                    'task_name': '_'.join(n[:-1]),
+                    'task_params': pickle.load(self.gcs_client.download(x.replace('task_log', 'task_params'))),
+                    'task_log': pickle.load(self.gcs_client.download(x)),
+                    'last_modified': datetime.strptime(meta['updated'].split('.')[0], '%Y-%m-%dT%H:%M:%S'),
+                    'task_hash': n[-1].split('.')[0]
+                })
+            except Exception:
+                continue
+
+        if len(tasks_list) != len(files):
+            warnings.warn(f'[NOT FOUND LOGS] target file: {len(files)}, found log file: {len(tasks_list)}')
+
         return tasks_list
 
     def _get_gcs_objects(self) -> List[str]:

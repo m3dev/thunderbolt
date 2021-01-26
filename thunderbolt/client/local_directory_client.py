@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
 from pathlib import Path
+import warnings
 import pickle
 from typing import List, Dict, Any
 
@@ -22,11 +23,16 @@ class LocalDirectoryClient:
             if self.task_filters and not [x for x in self.task_filters if x in n]:
                 continue
             n = n.split('_')
-            modified = datetime.fromtimestamp(os.stat(x).st_mtime)
-            with open(x, 'rb') as f:
-                task_log = pickle.load(f)
-            with open(x.replace('task_log', 'task_params'), 'rb') as f:
-                task_params = pickle.load(f)
+
+            try:
+                modified = datetime.fromtimestamp(os.stat(x).st_mtime)
+                with open(x, 'rb') as f:
+                    task_log = pickle.load(f)
+                with open(x.replace('task_log', 'task_params'), 'rb') as f:
+                    task_params = pickle.load(f)
+            except Exception:
+                continue
+
             tasks_list.append({
                 'task_name': '_'.join(n[:-1]),
                 'task_params': task_params,
@@ -34,6 +40,10 @@ class LocalDirectoryClient:
                 'last_modified': modified,
                 'task_hash': n[-1].split('.')[0],
             })
+
+        if len(tasks_list) != len(files):
+            warnings.warn(f'[NOT FOUND LOGS] target file: {len(files)}, found log file: {len(tasks_list)}')
+
         return tasks_list
 
     def to_absolute_path(self, x: str) -> str:

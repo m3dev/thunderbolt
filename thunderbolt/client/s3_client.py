@@ -1,5 +1,6 @@
 import os
 import pickle
+import warnings
 from typing import List, Dict, Any
 
 import boto3
@@ -26,13 +27,26 @@ class S3Client:
             if self.task_filters and not [x for x in self.task_filters if x in n]:
                 continue
             n = n.split('_')
-            tasks_list.append({
-                'task_name': '_'.join(n[:-1]),
-                'task_params': pickle.loads(self.resource.Object(self.bucket_name, x['Key'].replace('task_log', 'task_params')).get()['Body'].read()),
-                'task_log': pickle.loads(self.resource.Object(self.bucket_name, x['Key']).get()['Body'].read()),
-                'last_modified': x['LastModified'],
-                'task_hash': n[-1].split('.')[0]
-            })
+
+            try:
+                tasks_list.append({
+                    'task_name':
+                    '_'.join(n[:-1]),
+                    'task_params':
+                    pickle.loads(self.resource.Object(self.bucket_name, x['Key'].replace('task_log', 'task_params')).get()['Body'].read()),
+                    'task_log':
+                    pickle.loads(self.resource.Object(self.bucket_name, x['Key']).get()['Body'].read()),
+                    'last_modified':
+                    x['LastModified'],
+                    'task_hash':
+                    n[-1].split('.')[0]
+                })
+            except Exception:
+                continue
+
+        if len(tasks_list) != len(files):
+            warnings.warn(f'[NOT FOUND LOGS] target file: {len(files)}, found log file: {len(tasks_list)}')
+
         return tasks_list
 
     def _get_s3_keys(self, keys: List[Dict[str, Any]] = [], marker: str = '') -> List[Dict[str, Any]]:
