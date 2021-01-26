@@ -3,13 +3,15 @@ import pickle
 import warnings
 from typing import List, Dict, Any
 
+from thunderbolt.client.local_cache import LocalCache
+
 import boto3
 from boto3 import Session
 from tqdm import tqdm
 
 
 class S3Client:
-    def __init__(self, workspace_directory: str = '', task_filters: List[str] = [], tqdm_disable: bool = False):
+    def __init__(self, workspace_directory: str = '', task_filters: List[str] = [], tqdm_disable: bool = False, use_cache: bool = True):
         self.workspace_directory = workspace_directory
         self.task_filters = task_filters
         self.tqdm_disable = tqdm_disable
@@ -17,6 +19,8 @@ class S3Client:
         self.prefix = '/'.join(workspace_directory.replace('s3://', '').split('/')[1:])
         self.resource = boto3.resource('s3')
         self.s3client = Session().client('s3')
+        self.local_cache = LocalCache(workspace_directory, use_cache)
+        self.use_cache = use_cache
 
     def get_tasks(self) -> List[Dict[str, Any]]:
         """Load all task_log from S3"""
@@ -28,19 +32,23 @@ class S3Client:
                 continue
             n = n.split('_')
 
+            if self.use_cache:
+                cache = self.local_cache.get(x)
+                if cache:
+                    tasks_list.append(cache)
+                    continue
+
             try:
-                tasks_list.append({
-                    'task_name':
-                    '_'.join(n[:-1]),
-                    'task_params':
-                    pickle.loads(self.resource.Object(self.bucket_name, x['Key'].replace('task_log', 'task_params')).get()['Body'].read()),
-                    'task_log':
-                    pickle.loads(self.resource.Object(self.bucket_name, x['Key']).get()['Body'].read()),
-                    'last_modified':
-                    x['LastModified'],
-                    'task_hash':
-                    n[-1].split('.')[0]
-                })
+                params = {
+                    'task_name': '_'.join(n[:-1]),
+                    'task_params': pickle.loads(self.resource.Object(self.bucket_name, x['Key'].replace('task_log', 'task_params')).get()['Body'].read()),
+                    'task_log': pickle.loads(self.resource.Object(self.bucket_name, x['Key']).get()['Body'].read()),
+                    'last_modified': x['LastModified'],
+                    'task_hash': n[-1].split('.')[0]
+                }
+                tasks_list.append(params)
+                if self.use_cache:
+                    self.local_cache.dump(x, params)
             except Exception:
                 continue
 

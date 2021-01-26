@@ -18,7 +18,7 @@ class TestThunderbolt(unittest.TestCase):
         with ExitStack() as stack:
             for module in ['local_directory_client.LocalDirectoryClient', 'gcs_client.GCSClient', 's3_client.S3Client']:
                 stack.enter_context(patch('.'.join([module_path, module, 'get_tasks']), side_effect=get_tasks))
-            self.tb = thunderbolt.Thunderbolt(None)
+            self.tb = thunderbolt.Thunderbolt(None, use_cache=False)
 
     def test_get_client(self):
         source_workspace_directory = ['s3://', 'gs://', 'gcs://', './local', 'hoge']
@@ -27,27 +27,24 @@ class TestThunderbolt(unittest.TestCase):
         target = [S3Client, GCSClient, GCSClient, LocalDirectoryClient, LocalDirectoryClient]
 
         for s, t in zip(source_workspace_directory, target):
-            output = self.tb._get_client(s, source_filters, source_tqdm_disable)
+            output = self.tb._get_client(s, source_filters, source_tqdm_disable, False)
             self.assertEqual(type(output), t)
 
     def test_get_tasks_dic(self):
-        tasks_list = [
-            {
-                'task_name': 'task',
-                'last_modified': 'last_modified_2',
-                'task_params': 'task_params_1',
-                'task_hash': 'task_hash_1',
-                'task_log': 'task_log_1'
-            },
-            {
-                'task_name': 'task',
-                'last_modified': 'last_modified_1',
-                'task_params': 'task_params_1',
-                'task_hash': 'task_hash_1',
-                'task_log': 'task_log_1'
-            }
-        ]
-        
+        tasks_list = [{
+            'task_name': 'task',
+            'last_modified': 'last_modified_2',
+            'task_params': 'task_params_1',
+            'task_hash': 'task_hash_1',
+            'task_log': 'task_log_1'
+        }, {
+            'task_name': 'task',
+            'last_modified': 'last_modified_1',
+            'task_params': 'task_params_1',
+            'task_hash': 'task_hash_1',
+            'task_log': 'task_log_1'
+        }]
+
         target = {
             0: {
                 'task_name': 'task',

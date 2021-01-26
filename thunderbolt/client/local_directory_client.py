@@ -5,14 +5,18 @@ import warnings
 import pickle
 from typing import List, Dict, Any
 
+from thunderbolt.client.local_cache import LocalCache
+
 from tqdm import tqdm
 
 
 class LocalDirectoryClient:
-    def __init__(self, workspace_directory: str = '', task_filters: List[str] = [], tqdm_disable: bool = False):
+    def __init__(self, workspace_directory: str = '', task_filters: List[str] = [], tqdm_disable: bool = False, use_cache: bool = True):
         self.workspace_directory = os.path.abspath(workspace_directory)
         self.task_filters = task_filters
         self.tqdm_disable = tqdm_disable
+        self.local_cache = LocalCache(workspace_directory, use_cache)
+        self.use_cache = use_cache
 
     def get_tasks(self) -> List[Dict[str, Any]]:
         """Load all task_log from workspace_directory."""
@@ -24,22 +28,31 @@ class LocalDirectoryClient:
                 continue
             n = n.split('_')
 
+            if self.use_cache:
+                cache = self.local_cache.get(x)
+                if cache:
+                    tasks_list.append(cache)
+                    continue
+
             try:
                 modified = datetime.fromtimestamp(os.stat(x).st_mtime)
                 with open(x, 'rb') as f:
                     task_log = pickle.load(f)
                 with open(x.replace('task_log', 'task_params'), 'rb') as f:
                     task_params = pickle.load(f)
+
+                params = {
+                    'task_name': '_'.join(n[:-1]),
+                    'task_params': task_params,
+                    'task_log': task_log,
+                    'last_modified': modified,
+                    'task_hash': n[-1].split('.')[0],
+                }
+                tasks_list.append(params)
+                if self.use_cache:
+                    self.local_cache.dump(x, params)
             except Exception:
                 continue
-
-            tasks_list.append({
-                'task_name': '_'.join(n[:-1]),
-                'task_params': task_params,
-                'task_log': task_log,
-                'last_modified': modified,
-                'task_hash': n[-1].split('.')[0],
-            })
 
         if len(tasks_list) != len(files):
             warnings.warn(f'[NOT FOUND LOGS] target file: {len(files)}, found log file: {len(tasks_list)}')
