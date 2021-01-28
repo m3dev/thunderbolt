@@ -5,16 +5,20 @@ import warnings
 from datetime import datetime
 from typing import List, Dict, Any
 
+from thunderbolt.client.local_cache import LocalCache
+
 from gokart.gcs_config import GCSConfig
 
 
 class GCSClient:
-    def __init__(self, workspace_directory: str = '', task_filters: List[str] = [], tqdm_disable: bool = False):
+    def __init__(self, workspace_directory: str = '', task_filters: List[str] = [], tqdm_disable: bool = False, use_cache: bool = True):
         """must set $GCS_CREDENTIAL"""
         self.workspace_directory = workspace_directory
         self.task_filters = task_filters
         self.tqdm_disable = tqdm_disable
         self.gcs_client = GCSConfig().get_gcs_client()
+        self.local_cache = LocalCache(workspace_directory, use_cache)
+        self.use_cache = use_cache
 
     def get_tasks(self) -> List[Dict[str, Any]]:
         """Load all task_log from GCS"""
@@ -26,15 +30,24 @@ class GCSClient:
                 continue
             n = n.split('_')
 
+            if self.use_cache:
+                cache = self.local_cache.get(x)
+                if cache:
+                    tasks_list.append(cache)
+                    continue
+
             try:
                 meta = self._get_gcs_object_info(x)
-                tasks_list.append({
+                params = {
                     'task_name': '_'.join(n[:-1]),
                     'task_params': pickle.load(self.gcs_client.download(x.replace('task_log', 'task_params'))),
                     'task_log': pickle.load(self.gcs_client.download(x)),
                     'last_modified': datetime.strptime(meta['updated'].split('.')[0], '%Y-%m-%dT%H:%M:%S'),
                     'task_hash': n[-1].split('.')[0]
-                })
+                }
+                tasks_list.append(params)
+                if self.use_cache:
+                    self.local_cache.dump(x, params)
             except Exception:
                 continue
 

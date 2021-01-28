@@ -14,7 +14,7 @@ python -m unittest discover -s ./
 
 class SimpleLocalTest(unittest.TestCase):
     def setUp(self):
-        self.tb = thunderbolt.Thunderbolt(self.get_test_case_path())
+        self.tb = thunderbolt.Thunderbolt(self.get_test_case_path(), use_cache=False)
 
     def test_init(self):
         self.assertEqual(self.tb.client.workspace_directory, self.get_test_case_path())

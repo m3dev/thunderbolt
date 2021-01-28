@@ -10,7 +10,12 @@ from thunderbolt.client.local_directory_client import LocalDirectoryClient
 
 
 class Thunderbolt:
-    def __init__(self, workspace_directory: str = '', task_filters: Union[str, List[str]] = '', use_tqdm: bool = False, tmp_path: str = './tmp'):
+    def __init__(self,
+                 workspace_directory: str = '',
+                 task_filters: Union[str, List[str]] = '',
+                 use_tqdm: bool = False,
+                 tmp_path: str = './tmp',
+                 use_cache: bool = True):
         """Thunderbolt init.
 
         Set the path to the directory or S3.
@@ -21,20 +26,21 @@ class Thunderbolt:
                 Load only tasks that contain the specified string here. We can also specify the number of copies.
             use_tqdm: Flag of using tdqm. If False, tqdm not be displayed (default=False).
             tmp_path: Temporary directory when use external load function.
+            use_cache: Flag of using Log Cache.
         """
         self.tmp_path = tmp_path
         if not workspace_directory:
             env = os.getenv('TASK_WORKSPACE_DIRECTORY')
             workspace_directory = env if env else ''
-        self.client = self._get_client(workspace_directory, [task_filters] if type(task_filters) == str else task_filters, not use_tqdm)
+        self.client = self._get_client(workspace_directory, [task_filters] if type(task_filters) == str else task_filters, not use_tqdm, use_cache)
         self.tasks = self._get_tasks_dic(tasks_list=self.client.get_tasks())
 
-    def _get_client(self, workspace_directory, filters, tqdm_disable):
+    def _get_client(self, workspace_directory, filters, tqdm_disable, use_cache):
         if workspace_directory.startswith('s3://'):
-            return S3Client(workspace_directory, filters, tqdm_disable)
+            return S3Client(workspace_directory, filters, tqdm_disable, use_cache)
         elif workspace_directory.startswith('gs://') or workspace_directory.startswith('gcs://'):
-            return GCSClient(workspace_directory, filters, tqdm_disable)
-        return LocalDirectoryClient(workspace_directory, filters, tqdm_disable)
+            return GCSClient(workspace_directory, filters, tqdm_disable, use_cache)
+        return LocalDirectoryClient(workspace_directory, filters, tqdm_disable, use_cache)
 
     def _get_tasks_dic(self, tasks_list: List[Dict]) -> Dict[int, Dict]:
         return {i: task for i, task in enumerate(sorted(tasks_list, key=lambda x: x['last_modified']))}
