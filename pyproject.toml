@@ -22,7 +22,6 @@ tqdm = "*"
 
 [tool.poetry.dev-dependencies]
 tox = "*"
-moto = "*"
 
 [build-system]
 requires = ["poetry"]
