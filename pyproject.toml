@@ -15,12 +15,13 @@ style = "pep440"
 pattern = "^(?P<base>\\d+\\.\\d+\\.\\d+)"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 gokart = "^=0.2.4"
 boto3 = "*"
 tqdm = "*"
 
 [tool.poetry.dev-dependencies]
+tox = "*"
 moto = "*"
 
 [build-system]
