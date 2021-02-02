@@ -52,7 +52,7 @@ class GCSClient:
                 continue
 
         if len(tasks_list) != len(list(files)):
-            warnings.warn(f'[NOT FOUND LOGS] target file: {len(files)}, found log file: {len(tasks_list)}')
+            warnings.warn(f'[NOT FOUND LOGS] target file: {len(list(files))}, found log file: {len(tasks_list)}')
 
         return tasks_list
 
