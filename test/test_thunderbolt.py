@@ -65,6 +65,16 @@ class TestThunderbolt(unittest.TestCase):
         self.assertDictEqual(output, target)
 
     def test_get_task_df(self):
+        self.tb.tasks = {}
+
+        target = pd.DataFrame(columns=['task_id', 'task_name', 'last_modified', 'task_params', 'task_hash', 'task_log'])
+        output = self.tb.get_task_df(all_data=True)
+        pd.testing.assert_frame_equal(output, target)
+
+        target = pd.DataFrame(columns=['task_id', 'task_name', 'last_modified', 'task_params'])
+        output = self.tb.get_task_df(all_data=False)
+        pd.testing.assert_frame_equal(output, target)
+
         self.tb.tasks = {
             'Task1': {
                 'task_name': 'task_name_1',

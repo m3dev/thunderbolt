@@ -54,14 +54,18 @@ class Thunderbolt:
         Returns:
             All gokart task infomation pandas.DataFrame.
         """
-        df = pd.DataFrame([{
-            'task_id': k,
-            'task_name': v['task_name'],
-            'last_modified': v['last_modified'],
-            'task_params': v['task_params'],
-            'task_hash': v['task_hash'],
-            'task_log': v['task_log']
-        } for k, v in self.tasks.items()])
+        if self.tasks:
+            df = pd.DataFrame([{
+                'task_id': k,
+                'task_name': v['task_name'],
+                'last_modified': v['last_modified'],
+                'task_params': v['task_params'],
+                'task_hash': v['task_hash'],
+                'task_log': v['task_log']
+            } for k, v in self.tasks.items()])
+        else:
+            df = pd.DataFrame(columns=['task_id', 'task_name', 'last_modified', 'task_params', 'task_hash', 'task_log'])
+
         if all_data:
             return df
         return df[['task_id', 'task_name', 'last_modified', 'task_params']]
