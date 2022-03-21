@@ -11,11 +11,11 @@ class SampleTask(gokart.TaskOnKart):
     task_namespace = 'sample'
     name = luigi.Parameter()
     number = luigi.IntParameter()
-    
+
     def run(self):
         self.dump(f'this is sample output. model number: {self.number}')
 
-        
+
 @requires(SampleTask)
 class SecondTask(gokart.TaskOnKart):
     task_namespace = 'sample'
@@ -24,5 +24,5 @@ class SecondTask(gokart.TaskOnKart):
     def run(self):
         sample = self.load()
         self.dump(sample + f'add task: {self.param}')
-        
+
 gokart.run()
