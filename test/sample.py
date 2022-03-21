@@ -1,8 +1,9 @@
 # define tasks
+from logging import getLogger
+
 import gokart
 import luigi
 from luigi.util import requires
-from logging import getLogger
 
 logger = getLogger(__name__)
 

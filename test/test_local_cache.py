@@ -1,11 +1,12 @@
-import unittest
 import os
+import unittest
 from pathlib import Path
 
 from thunderbolt.client.local_cache import LocalCache
 
 
 class TestLocalCache(unittest.TestCase):
+
     def setUp(self):
         self.base_path = './resources'
         self.local_cache = LocalCache(self.base_path, True)

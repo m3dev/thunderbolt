@@ -1,15 +1,17 @@
 import os
-from typing import Union, List, Dict, Any
 import shutil
+from typing import Any, Dict, List, Union
 
 import gokart
 import pandas as pd
-from thunderbolt.client.s3_client import S3Client
+
 from thunderbolt.client.gcs_client import GCSClient
 from thunderbolt.client.local_directory_client import LocalDirectoryClient
+from thunderbolt.client.s3_client import S3Client
 
 
 class Thunderbolt:
+
     def __init__(self,
                  workspace_directory: str = '',
                  task_filters: Union[str, List[str]] = '',
