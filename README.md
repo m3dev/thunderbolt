@@ -8,9 +8,9 @@
 Thunderbolt is data manager for gokart.
 
 
- [1] Auto loading gokart task logs
- [2] Check task params using pandas
- [3] Download data from python
+1. Auto loading gokart task logs
+1. Check task params using pandas
+1. Download data from python
 
 
 # Usage
@@ -24,7 +24,7 @@ pip install thunderbolt
 
 If you specify `TASK_WORKSPACE_DIRECTORY`, thunderbolt reads the log.
 So making tasks pandas.DataFrame, and load dumped data.
-This is also possible from S3 or GCS. (s3://~~, gs://~~)
+This is also possible from S3 or GCS. (s3://, gs://)
 
 Example:
 ```python
