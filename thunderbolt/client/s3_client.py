@@ -1,16 +1,17 @@
 import os
 import pickle
 import warnings
-from typing import List, Dict, Any
-
-from thunderbolt.client.local_cache import LocalCache
+from typing import Any, Dict, List
 
 import boto3
 from boto3 import Session
 from tqdm import tqdm
 
+from thunderbolt.client.local_cache import LocalCache
+
 
 class S3Client:
+
     def __init__(self, workspace_directory: str = '', task_filters: List[str] = [], tqdm_disable: bool = False, use_cache: bool = True):
         self.workspace_directory = workspace_directory
         self.task_filters = task_filters

@@ -1,8 +1,10 @@
-import thunderbolt
+import pickle
 import unittest
 from os import path
+
 import pandas as pd
-import pickle
+
+import thunderbolt
 """
 requires:
 python sample.py test.TestCaseTask --param=sample --number=1 --workspace-directory=./test_case --local-scheduler
@@ -13,6 +15,7 @@ python -m unittest discover -s ./
 
 
 class SimpleLocalTest(unittest.TestCase):
+
     def setUp(self):
         self.tb = thunderbolt.Thunderbolt(self.get_test_case_path(), use_cache=False)
 

@@ -1,16 +1,20 @@
-import thunderbolt
 import unittest
-from unittest.mock import patch
-from mock import MagicMock
 from contextlib import ExitStack
+from unittest.mock import patch
+
 import pandas as pd
-from thunderbolt.client.local_directory_client import LocalDirectoryClient
+from mock import MagicMock
+
+import thunderbolt
 from thunderbolt.client.gcs_client import GCSClient
+from thunderbolt.client.local_directory_client import LocalDirectoryClient
 from thunderbolt.client.s3_client import S3Client
 
 
 class TestThunderbolt(unittest.TestCase):
+
     def setUp(self):
+
         def get_tasks():
             return []
 
@@ -189,7 +193,9 @@ class TestThunderbolt(unittest.TestCase):
         target = 'hoge'
 
         def make_target(file_path):
+
             class mock:
+
                 def __init__(self, file_path):
                     self.file_path = file_path
 
