@@ -34,7 +34,7 @@ class S3Client:
             n = n.split('_')
 
             if self.use_cache:
-                cache = self.local_cache.get(x['key'])
+                cache = self.local_cache.get(x['Key'])
                 if cache:
                     tasks_list.append(cache)
                     continue
@@ -49,7 +49,7 @@ class S3Client:
                 }
                 tasks_list.append(params)
                 if self.use_cache:
-                    self.local_cache.dump(x['key'], params)
+                    self.local_cache.dump(x['Key'], params)
             except Exception:
                 continue
 
