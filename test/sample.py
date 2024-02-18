@@ -3,7 +3,6 @@ from logging import getLogger
 
 import gokart
 import luigi
-from luigi.util import requires
 
 logger = getLogger(__name__)
 

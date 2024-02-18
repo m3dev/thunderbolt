@@ -30,7 +30,7 @@ class Thunderbolt:
         if not workspace_directory:
             env = os.getenv('TASK_WORKSPACE_DIRECTORY')
             workspace_directory = env if env else ''
-        self.client = self._get_client(workspace_directory, [task_filters] if type(task_filters) == str else task_filters, not use_tqdm, use_cache)
+        self.client = self._get_client(workspace_directory, [task_filters] if isinstance(type(task_filters), str) else task_filters, not use_tqdm, use_cache)
         self.tasks = self._get_tasks_dic(tasks_list=self.client.get_tasks())
 
     def _get_client(self, workspace_directory, filters, tqdm_disable, use_cache):

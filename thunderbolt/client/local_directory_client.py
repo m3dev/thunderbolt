@@ -55,7 +55,7 @@ class LocalDirectoryClient:
                 continue
 
         if len(tasks_list) != len(files):
-            warnings.warn(f'[NOT FOUND LOGS] target file: {len(files)}, found log file: {len(tasks_list)}')
+            warnings.warn(f'[NOT FOUND LOGS] target file: {len(files)}, found log file: {len(tasks_list)}', stacklevel=2)
 
         return tasks_list
 

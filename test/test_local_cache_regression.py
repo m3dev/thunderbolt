@@ -1,11 +1,7 @@
-import pickle
 import unittest
 from os import path
 
-import pandas as pd
-
 from thunderbolt import Thunderbolt
-from thunderbolt.client.local_cache import LocalCache
 
 """
 requires:
