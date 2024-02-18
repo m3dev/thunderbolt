@@ -11,7 +11,6 @@ from thunderbolt.client.local_cache import LocalCache
 
 
 class GCSClient:
-
     def __init__(self, workspace_directory: str = '', task_filters: List[str] = [], tqdm_disable: bool = False, use_cache: bool = True):
         """must set $GCS_CREDENTIAL"""
         self.workspace_directory = workspace_directory
@@ -44,7 +43,7 @@ class GCSClient:
                     'task_params': pickle.load(self.gcs_client.download(x.replace('task_log', 'task_params'))),
                     'task_log': pickle.load(self.gcs_client.download(x)),
                     'last_modified': datetime.strptime(meta['updated'].split('.')[0], '%Y-%m-%dT%H:%M:%S'),
-                    'task_hash': n[-1].split('.')[0]
+                    'task_hash': n[-1].split('.')[0],
                 }
                 tasks_list.append(params)
                 if self.use_cache:

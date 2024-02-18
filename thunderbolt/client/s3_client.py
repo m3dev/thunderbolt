@@ -11,7 +11,6 @@ from thunderbolt.client.local_cache import LocalCache
 
 
 class S3Client:
-
     def __init__(self, workspace_directory: str = '', task_filters: List[str] = [], tqdm_disable: bool = False, use_cache: bool = True):
         self.workspace_directory = workspace_directory
         self.task_filters = task_filters
@@ -45,7 +44,7 @@ class S3Client:
                     'task_params': pickle.loads(self.resource.Object(self.bucket_name, x['Key'].replace('task_log', 'task_params')).get()['Body'].read()),
                     'task_log': pickle.loads(self.resource.Object(self.bucket_name, x['Key']).get()['Body'].read()),
                     'last_modified': x['LastModified'],
-                    'task_hash': n[-1].split('.')[0]
+                    'task_hash': n[-1].split('.')[0],
                 }
                 tasks_list.append(params)
                 if self.use_cache:

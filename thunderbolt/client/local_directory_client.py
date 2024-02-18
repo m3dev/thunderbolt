@@ -11,7 +11,6 @@ from thunderbolt.client.local_cache import LocalCache
 
 
 class LocalDirectoryClient:
-
     def __init__(self, workspace_directory: str = '', task_filters: List[str] = [], tqdm_disable: bool = False, use_cache: bool = True):
         self.workspace_directory = os.path.abspath(workspace_directory)
         self.task_filters = task_filters

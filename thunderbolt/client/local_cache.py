@@ -6,7 +6,6 @@ from typing import Optional
 
 
 class LocalCache:
-
     def __init__(self, workspace_directory: str, use_cache: bool):
         """Log file cache.
 

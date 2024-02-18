@@ -5,6 +5,7 @@ from os import path
 import pandas as pd
 
 import thunderbolt
+
 """
 requires:
 python sample.py test.TestCaseTask --param=sample --number=1 --workspace-directory=./test_case --local-scheduler
@@ -15,7 +16,6 @@ python -m unittest discover -s ./
 
 
 class SimpleLocalTest(unittest.TestCase):
-
     def setUp(self):
         self.tb = thunderbolt.Thunderbolt(self.get_test_case_path(), use_cache=False)
 
@@ -36,18 +36,17 @@ class SimpleLocalTest(unittest.TestCase):
     def test_get_task_df(self):
         df = self.tb.get_task_df(all_data=True)
         df = df.drop('last_modified', axis=1)
-        target_df = pd.DataFrame([{
-            'task_id': 0,
-            'task_name': 'TestCaseTask',
-            'task_params': {
-                'param': 'sample',
-                'number': '1'
-            },
-            'task_hash': 'c5b4a28a606228ac23477557c774a3a0',
-            'task_log': {
-                'file_path': ['./test_case/sample/test_case_c5b4a28a606228ac23477557c774a3a0.pkl']
-            }
-        }])
+        target_df = pd.DataFrame(
+            [
+                {
+                    'task_id': 0,
+                    'task_name': 'TestCaseTask',
+                    'task_params': {'param': 'sample', 'number': '1'},
+                    'task_hash': 'c5b4a28a606228ac23477557c774a3a0',
+                    'task_log': {'file_path': ['./test_case/sample/test_case_c5b4a28a606228ac23477557c774a3a0.pkl']},
+                }
+            ]
+        )
         pd.testing.assert_frame_equal(df, target_df)
 
     def test_load(self):
