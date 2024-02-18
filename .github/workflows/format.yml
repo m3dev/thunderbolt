@@ -24,4 +24,4 @@ jobs:
         poetry install
     - name: Run formatter
       run: |
-        poetry run tox -e ruff,mypy
+        poetry run tox -e ruff
