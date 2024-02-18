@@ -25,4 +25,5 @@ class SecondTask(gokart.TaskOnKart):
         sample = self.load()
         self.dump(sample + f'add task: {self.param}')
 
+
 gokart.run()
