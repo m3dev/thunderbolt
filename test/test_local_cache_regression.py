@@ -1,11 +1,8 @@
-import pickle
 import unittest
 from os import path
 
-import pandas as pd
-
 from thunderbolt import Thunderbolt
-from thunderbolt.client.local_cache import LocalCache
+
 """
 requires:
 python sample.py test.TestCaseTask --param=sample --number=1 --workspace-directory=./test_case --local-scheduler
@@ -13,7 +10,6 @@ python sample.py test.TestCaseTask --param=sample --number=1 --workspace-directo
 
 
 class LocalCacheTest(unittest.TestCase):
-
     def test_running(self):
         target = Thunderbolt(self._get_test_case_path(), use_cache=False)
         _ = Thunderbolt(self._get_test_case_path())

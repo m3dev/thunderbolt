@@ -1,8 +1,9 @@
 # define tasks
+from logging import getLogger
+
 import gokart
 import luigi
 from luigi.util import requires
-from logging import getLogger
 
 logger = getLogger(__name__)
 
@@ -24,5 +25,6 @@ class SecondTask(gokart.TaskOnKart):
     def run(self):
         sample = self.load()
         self.dump(sample + f'add task: {self.param}')
+
 
 gokart.run()

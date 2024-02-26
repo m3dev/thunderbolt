@@ -11,13 +11,9 @@ from thunderbolt.client.s3_client import S3Client
 
 
 class Thunderbolt:
-
-    def __init__(self,
-                 workspace_directory: str = '',
-                 task_filters: Union[str, List[str]] = '',
-                 use_tqdm: bool = False,
-                 tmp_path: str = './tmp',
-                 use_cache: bool = True):
+    def __init__(
+        self, workspace_directory: str = '', task_filters: Union[str, List[str]] = '', use_tqdm: bool = False, tmp_path: str = './tmp', use_cache: bool = True
+    ):
         """Thunderbolt init.
 
         Set the path to the directory or S3.
@@ -34,7 +30,7 @@ class Thunderbolt:
         if not workspace_directory:
             env = os.getenv('TASK_WORKSPACE_DIRECTORY')
             workspace_directory = env if env else ''
-        self.client = self._get_client(workspace_directory, [task_filters] if type(task_filters) == str else task_filters, not use_tqdm, use_cache)
+        self.client = self._get_client(workspace_directory, [task_filters] if isinstance(type(task_filters), str) else task_filters, not use_tqdm, use_cache)
         self.tasks = self._get_tasks_dic(tasks_list=self.client.get_tasks())
 
     def _get_client(self, workspace_directory, filters, tqdm_disable, use_cache):
@@ -57,14 +53,19 @@ class Thunderbolt:
             All gokart task infomation pandas.DataFrame.
         """
         if self.tasks:
-            df = pd.DataFrame([{
-                'task_id': k,
-                'task_name': v['task_name'],
-                'last_modified': v['last_modified'],
-                'task_params': v['task_params'],
-                'task_hash': v['task_hash'],
-                'task_log': v['task_log']
-            } for k, v in self.tasks.items()])
+            df = pd.DataFrame(
+                [
+                    {
+                        'task_id': k,
+                        'task_name': v['task_name'],
+                        'last_modified': v['last_modified'],
+                        'task_params': v['task_params'],
+                        'task_hash': v['task_hash'],
+                        'task_log': v['task_log'],
+                    }
+                    for k, v in self.tasks.items()
+                ]
+            )
         else:
             df = pd.DataFrame(columns=['task_id', 'task_name', 'last_modified', 'task_params', 'task_hash', 'task_log'])
 

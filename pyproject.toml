@@ -7,7 +7,6 @@ license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/m3dev/thunderbolt"
 repository = "https://github.com/m3dev/thunderbolt"
-documentation = ""
 
 [tool.poetry-dynamic-versioning]
 enable = true
@@ -15,24 +14,40 @@ style = "pep440"
 pattern = "^(?P<base>\\d+\\.\\d+\\.\\d+)"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
+python = ">=3.9,<3.13"
 gokart = "*"
 boto3 = "*"
 tqdm = "*"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+ruff = "*"
 tox = "*"
+coverage = "*"
 mock = "*"
-isort = "*"
-yapf = "*"
-toml = "*"
 
-[tool.yapf]
-based_on_style = "pep8"
-column_limit = 160
+[tool.ruff]
+line-length = 160
+exclude = ["venv/*", "tox/*"]
 
-[tool.isort]
-line_length = 160
+[tool.ruff.lint]
+# All the rules are listed on https://docs.astral.sh/ruff/rules/
+extend-select = [
+  "B", # bugbear
+  "I" # isort
+]
+
+# B006: Do not use mutable data structures for argument defaults. They are created during function definition time. All calls to the function reuse this one instance of that data structure, persisting changes between them.
+# B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+ignore = ["B006", "B008"]
+
+# Avoid automatically removing unused imports in __init__.py files.
+ignore-init-module-imports = true
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "single"
 
 [build-system]
 requires = ["poetry"]
